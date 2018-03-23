@@ -1,0 +1,10 @@
+{
+  "name": "abot",
+  "version": "0.0.1",
+  "description": "abot a Discord bot",
+  "main": "bot.js",
+  "author": "amki",
+  "dependencies": {
+    "discord.js": "^11.3.2"
+  }
+}
