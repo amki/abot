@@ -5,6 +5,7 @@
   "main": "bot.js",
   "author": "amki",
   "dependencies": {
-    "discord.js": "^11.3.2"
+    "discord.js": "^11.3.2",
+    "sqlite3": "^4.0.0"
   }
 }

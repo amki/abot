@@ -20,7 +20,7 @@ var command = function(abot) {
     });
     
     self.addCommand = function(command, access, handler) {
-        if(!command || !access || !handler) {
+        if(!command || access == null || !handler) {
             console.log("Command: Error adding command "+command+" you have to specify command, access and handler");
             return;
         }
