@@ -30,7 +30,7 @@ ABot.prototype.loadModule = async function(moduleName) {
         try {
             moduleConfig = JSON.parse(fs.readFileSync(configPath));
         } catch(err) {
-            console.log('Error parsing config: ' + err + ' ' + err.stack.split('\n')[2].trim());
+            console.log('Error parsing config: ' + err + ' ' + err.stack);
             return false;
         }
     }
@@ -56,8 +56,7 @@ ABot.prototype.loadModule = async function(moduleName) {
         var module = rawModule.fetch(this);
         self.modules[moduleName] = module;
     } catch(err) {
-        var stack = err.stack.split('\n')[2].trim();
-        console.log('Error loading module: ' + err + ' ' + stack);
+        console.log('Error loading module: '+err.stack);
         return false;
     }
 
@@ -98,7 +97,7 @@ ABot.prototype.reloadModules = async function() {
                 var cacheKey = require.resolve("./" + modulePath + "/" + moduleName);
                 delete require.cache[cacheKey];
             } catch(err) {
-                console.log('Error loading module: ' + err + ' ' + err.stack.split('\n')[2].trim());
+                console.log('Error loading module: ' + err + ' ' + err.stack);
                 return false;
             }
         }

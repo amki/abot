@@ -1,19 +1,22 @@
 var command = function(abot) {
     var self = this;
-    console.log("Loaded command!");
+    self.commands = {};
+    console.log("Started command!");
     abot.client.on("message", async message => {
         if(message.content.indexOf(abot.config.prefix) !== 0) return;
         const args = message.content.slice(abot.config.prefix.length).trim().split(/ +/g);
-        const command = args.shift().toLowerCase();
+        const cmd = args.shift().toLowerCase();
 
-        if(command === "getid") {
-            var id = args[0];
-            message.channel.send(message.author+": User's ID is "+id.slice(2,id.length-1));
+        var cmdList = Object.keys(self.commands);
+        if(cmdList.includes(cmd)) {
+            console.log("Found command ",cmd);
+            var func = self.commands[cmd];
+            func(message, args);
         }
     });
     
-    self.debug = function(channel) {
-        channel.send("DEBUG!");
+    self.addCommand = function(command, handler) {
+        self.commands[command] = handler;
     }
 };
 
