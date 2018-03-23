@@ -42,7 +42,7 @@ ABot.prototype.loadModule = async function(moduleName) {
             var lMods = Object.keys(self.modules);
             if(!lMods.includes(dep)) {
                 console.log("Dependency "+dep+" unmet, loading...");
-                if(!await self.reloadModule(dep)) {
+                if(!await self.loadModule(dep)) {
                     console.log("Not loading "+moduleName+" because of dependency failure.");
                     return false;
                 };
@@ -54,7 +54,10 @@ ABot.prototype.loadModule = async function(moduleName) {
     try {
         var rawModule = require("./" + modulePath + "/" + moduleName);
         var module = rawModule.fetch(this);
+        module.name = moduleName;
+        module.config = moduleConfig;
         self.modules[moduleName] = module;
+        return true;
     } catch(err) {
         console.log('Error loading module: '+err.stack);
         return false;

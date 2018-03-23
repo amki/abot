@@ -1,5 +1,6 @@
 var base = function(abot) {
     console.log("Loaded base!");
+    var command = abot.modules["command"];
 
     abot.client.on("ready", () => {
       // This event will run if the bot starts, and logs in, successfully.
@@ -21,17 +22,10 @@ var base = function(abot) {
       abot.client.user.setActivity(`on ${abot.client.guilds.size} servers`);
     });
 
-    abot.client.on("message", async message => {
-        if(message.content.indexOf(abot.config.prefix) !== 0) return;
-        const args = message.content.slice(abot.config.prefix.length).trim().split(/ +/g);
-        const command = args.shift().toLowerCase();
-
-        if(command === "reload") {
-            await message.channel.send("Reloading all modules...");
-            await abot.reloadModules();
-            message.channel.send("Modules reloaded!");
-
-        }
+    command.addCommand("reload","admin",async function(msg, args) {
+        await msg.channel.send("Reloading all modules...");
+        await abot.reloadModules();
+        msg.channel.send("Modules reloaded!");
     });
 }
 

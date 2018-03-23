@@ -9,14 +9,22 @@ var command = function(abot) {
 
         var cmdList = Object.keys(self.commands);
         if(cmdList.includes(cmd)) {
-            console.log("Found command ",cmd);
-            var func = self.commands[cmd];
-            func(message, args);
+            var cmdObj = self.commands[cmd];
+            var authUsers = self.config[cmdObj.access];
+            if(cmdObj.access === "" || (authUsers && authUsers.includes(message.author.tag))) {
+                cmdObj.handler(message, args);
+            } else {
+                message.channel.send("I'm sorry "+message.author+", I'm afraid I can't do that.");
+            }
         }
     });
     
-    self.addCommand = function(command, handler) {
-        self.commands[command] = handler;
+    self.addCommand = function(command, access, handler) {
+        if(!command || !access || !handler) {
+            console.log("Command: Error adding command "+command+" you have to specify command, access and handler");
+            return;
+        }
+        self.commands[command] = {access: access, handler: handler};
     }
 };
 
