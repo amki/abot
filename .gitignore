@@ -1,2 +1,4 @@
-config.json
+/config.json
+abot.sqlite
 node_modules
+package-lock.json
