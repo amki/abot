@@ -1,8 +1,22 @@
+const Discord = require('discord.js');
+
 var birthday = function(abot) {
     var self = this;
     var command = abot.modules["command"];
     var sqlite = abot.modules["sqlite"];
+    
+    self.onCreate = () => {
+        console.log("Should attach to ",abot.client.guilds.size);
+    };
+
+    abot.client.on("ready",() => {
+        self.onCreate();
+    });
+
     self.checkDbInit = function(guild) {
+        if(sqlite.db[guild.id] == null) {
+            sqlite.loadDb(guild.id);
+        }
         return new Promise(function(resolve, reject) {
             sqlite.db[guild.id].run("CREATE TABLE IF NOT EXISTS birthday(tag TEXT PRIMARY KEY, date INTEGER NOT NULL)", function(err) {
                 if(err != null) {
@@ -13,7 +27,7 @@ var birthday = function(abot) {
         });
 
     };
-    command.addCommand({command: "bdayadd", access: "", handler: async function(msg, args) {
+    command.addCommand({command: "bdayadd", access: Discord.Permissions.FLAGS.SEND_MESSAGES, handler: async function(msg, args) {
         if(args.length != 2) {
             msg.channel.send("Usage: !addbday [tag] [date].");
             return;
@@ -49,7 +63,7 @@ var birthday = function(abot) {
         });
     }});
 
-    command.addCommand({command: "bdayshow", access: "", handler: async function(msg, args) {
+    command.addCommand({command: "bdayshow", access: Discord.Permissions.FLAGS.SEND_MESSAGES, handler: async function(msg, args) {
         if(args.length != 1) {
             msg.channel.send("Usage: !addbday [tag].");
             return;
@@ -75,6 +89,10 @@ var birthday = function(abot) {
             var bdate = new Date(row.date);
             msg.channel.send("I have "+bdate+" saved as birthday for "+buser);
         });
+
+    }});
+
+    command.addCommand({command: "bdaynotifychannel", access: Discord.Permissions.FLAGS.SEND_MESSAGES, handler: async function(msg, args) {
 
     }});
 };

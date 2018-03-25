@@ -1,3 +1,5 @@
+const Discord = require('discord.js');
+
 var base = function(abot) {
     console.log("Loaded base!");
     var command = abot.modules["command"];
@@ -24,7 +26,7 @@ var base = function(abot) {
       abot.client.user.setActivity(`on ${abot.client.guilds.size} servers`);
     });
 
-    command.addCommand({command: "reload", access: "admin", handler: async function(msg, args) {
+    command.addCommand({command: "reload", access: Discord.Permissions.FLAGS.KICK_MEMBERS, handler: async function(msg, args) {
         await msg.channel.send("Reloading all modules...");
         await abot.reloadModules();
         msg.channel.send("Modules reloaded!");

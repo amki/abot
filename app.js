@@ -56,6 +56,8 @@ ABot.prototype.loadModule = async function(moduleName) {
         var module = rawModule.fetch(this);
         module.name = moduleName;
         module.config = moduleConfig;
+        if(module.onCreate)
+            module.onCreate();
         self.modules[moduleName] = module;
         return true;
     } catch(err) {

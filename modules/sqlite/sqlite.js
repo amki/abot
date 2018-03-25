@@ -4,7 +4,6 @@ var sqlite = function(abot) {
     var self = this;
     console.log("Started sqlite!");
     self.db = {};
-    //
     self.openAllDbs = function() {
         var guilds = abot.client.guilds.array();
         for(var i=0;i<guilds.length;++i) {

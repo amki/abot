@@ -1,3 +1,5 @@
+const Discord = require('discord.js');
+
 var command = function(abot) {
     var self = this;
     self.commands = {};
@@ -11,7 +13,7 @@ var command = function(abot) {
         if(cmdList.includes(cmd)) {
             var cmdObj = self.commands[cmd];
             var authUsers = self.config[cmdObj.access];
-            if(cmdObj.access === "" || (authUsers && authUsers.includes(message.author.tag))) {
+            if(message.member.permissions.has(cmdObj.access)) {
                 cmdObj.handler(message, args);
             } else {
                 message.channel.send("I'm sorry "+message.author+", I'm afraid I can't do that.");
