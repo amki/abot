@@ -1,4 +1,4 @@
 /config.json
-abot.sqlite
+/*.sqlite
 node_modules
 package-lock.json

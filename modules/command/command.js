@@ -19,12 +19,13 @@ var command = function(abot) {
         }
     });
     
-    self.addCommand = function(command, access, handler) {
-        if(!command || access == null || !handler) {
+    self.addCommand = function(cmdObj) {
+
+        if(!cmdObj.command || cmdObj.access == null || !cmdObj.handler) {
             console.log("Command: Error adding command "+command+" you have to specify command, access and handler");
             return;
         }
-        self.commands[command] = {access: access, handler: handler};
+        self.commands[cmdObj.command] = cmdObj;
     }
 };
 
