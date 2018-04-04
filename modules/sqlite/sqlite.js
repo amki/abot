@@ -14,6 +14,9 @@ var sqlite = function(abot) {
     self.openDb = function(id) {
         self.db[id] = new sqlite3.Database(id+'.sqlite');
     };
+    abot.client.on("ready", () => {
+        self.openAllDbs();
+    });
     self.openAllDbs();
 };
 

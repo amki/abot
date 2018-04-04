@@ -2,7 +2,6 @@ const Discord = require('discord.js');
 
 var base = function(abot) {
     console.log("Loaded base!");
-    var command = abot.modules["command"];
     var sqlite = abot.modules["sqlite"];
 
     abot.client.on("ready", () => {
@@ -11,7 +10,6 @@ var base = function(abot) {
       // Example of changing the bot's playing game to something useful. `client.user` is what the
       // docs refer to as the "ClientUser".
       abot.client.user.setActivity(`on ${abot.client.guilds.size} servers`);
-        abot.modules["sqlite"].openAllDbs();
     });
 
     abot.client.on("guildCreate", guild => {
@@ -26,7 +24,7 @@ var base = function(abot) {
       abot.client.user.setActivity(`on ${abot.client.guilds.size} servers`);
     });
 
-    command.addCommand({command: "reload", access: Discord.Permissions.FLAGS.KICK_MEMBERS, handler: async function(msg, args) {
+    abot.addCommand({command: "reload", access: Discord.Permissions.FLAGS.KICK_MEMBERS, handler: async function(msg, args) {
         await msg.channel.send("Reloading all modules...");
         await abot.reloadModules();
         msg.channel.send("Modules reloaded!");

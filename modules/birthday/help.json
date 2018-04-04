@@ -1,0 +1,7 @@
+{
+    "bdayadd": {
+        "usage": "!bdayadd mention date",
+        "sHelp": "Adds a birthday for mention to this bot's calendar.",
+        "lHelp": "Adds a birthday, long text"
+    }
+}

@@ -1,3 +1,3 @@
 {
-    "dependencies":["command","sqlite"]
+    "dependencies":["sqlite"]
 }

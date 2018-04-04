@@ -27,11 +27,7 @@ var birthday = function(abot) {
         });
 
     };
-    command.addCommand({command: "bdayadd", access: Discord.Permissions.FLAGS.SEND_MESSAGES, handler: async function(msg, args) {
-        if(args.length != 2) {
-            msg.channel.send("Usage: !addbday [tag] [date].");
-            return;
-        }
+    abot.addCommand({command: "bdayadd", argCount: 2, access: Discord.Permissions.FLAGS.SEND_MESSAGES, handler: async function(msg, args) {
         if(msg.mentions.users.array().length > 1) {
             msg.channel.send("Please only mention one user at a time.");
             return;
@@ -63,13 +59,12 @@ var birthday = function(abot) {
         });
     }});
 
-    command.addCommand({command: "bdayshow", access: Discord.Permissions.FLAGS.SEND_MESSAGES, handler: async function(msg, args) {
-        if(args.length != 1) {
-            msg.channel.send("Usage: !addbday [tag].");
-            return;
-        }
+    abot.addCommand({command: "bdayshow", argCount: 1, access: Discord.Permissions.FLAGS.SEND_MESSAGES, handler: async function(msg, args) {
         if(msg.mentions.users.array().length > 1) {
             msg.channel.send("Please only mention one user at a time.");
+            return;
+        } else if(msg.mentions.users.array().length < 1) {
+            msg.channel.send("Please mention the user whose birthday you want to see.");
             return;
         }
         var guild = msg.guild;
@@ -92,7 +87,7 @@ var birthday = function(abot) {
 
     }});
 
-    command.addCommand({command: "bdaynotifychannel", access: Discord.Permissions.FLAGS.SEND_MESSAGES, handler: async function(msg, args) {
+    abot.addCommand({command: "bdaynotifychannel", access: Discord.Permissions.FLAGS.SEND_MESSAGES, handler: async function(msg, args) {
 
     }});
 };
