@@ -2,11 +2,21 @@ const Discord = require('discord.js');
 
 var birthday = function(abot) {
     var self = this;
-    var command = abot.modules["command"];
+
+    self.timers = []
+
     var sqlite = abot.modules["sqlite"];
     
-    self.onCreate = () => {
+    self.onCreate = async () => {
         console.log("Should attach to ",abot.client.guilds.size);
+        var guilds = abot.client.guilds.array();
+        for(var i=0;i<guilds.length;++i) {
+            await self.checkDbInit(guilds[i]);
+        }
+    };
+
+    self.onDestroy = async () => {
+        console.log("Birthday on destroy!");
     };
 
     abot.client.on("ready",() => {
@@ -15,14 +25,19 @@ var birthday = function(abot) {
 
     self.checkDbInit = function(guild) {
         if(sqlite.db[guild.id] == null) {
-            sqlite.loadDb(guild.id);
+            sqlite.openDb(guild.id);
         }
         return new Promise(function(resolve, reject) {
             sqlite.db[guild.id].run("CREATE TABLE IF NOT EXISTS birthday(tag TEXT PRIMARY KEY, date INTEGER NOT NULL)", function(err) {
                 if(err != null) {
                     reject(err);
                 }
-                resolve();
+                sqlite.db[guild.id].run("CREATE TABLE IF NOT EXISTS birthdaychannel(channel TEXT PRIMARY KEY)", function(err) {
+                    if(err != null) {
+                        reject(err);
+                    }
+                    resolve();
+                });
             });
         });
 
@@ -87,7 +102,19 @@ var birthday = function(abot) {
 
     }});
 
-    abot.addCommand({command: "bdaynotifychannel", access: Discord.Permissions.FLAGS.SEND_MESSAGES, handler: async function(msg, args) {
+    abot.addCommand({command: "bdaychannel", argCount: 0, access: Discord.Permissions.FLAGS.SEND_MESSAGES, handler: async function(msg, args) {
+        var guild = msg.guild;
+        if(msg.guild == null) {
+            msg.channel.send("You can only fetch birthdays for a guild. Try using this in a guild.");
+            return;
+        }
+        await self.checkDbInit(guild);
+        sqlite.db[guild.id].run("DELETE * FROM birthdaychannel", function(err) {
+            sqlite.db[guild.id].run("INSERT INTO birthdaychannel (channel) VALUES ($channel)",{"$channel": msg.channel.id}, function(err) {
+                msg.channel.send("Saved "+msg.channel.name+" for birthday notifications.");
+            });
+
+        });
 
     }});
 };

@@ -170,6 +170,7 @@ ABot.prototype.loadModule = async function(moduleName) {
         var rawModule = require("./" + modulePath + "/" + moduleName);
         var module = rawModule.fetch(this);
         module.name = moduleName;
+        module.help = moduleHelp;
         module.config = moduleConfig;
         if(module.onCreate)
             module.onCreate();
