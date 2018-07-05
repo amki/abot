@@ -1,0 +1,7 @@
+{
+    "bdayadd": {
+        "usage": "!rssadd name feedurl",
+        "sHelp": "Adds an rss feed named name with url feedurl.",
+        "lHelp": "LONGTEXT IS MISS :3"
+    }
+}

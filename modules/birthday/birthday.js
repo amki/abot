@@ -12,6 +12,7 @@ var birthday = function(abot) {
         var guilds = abot.client.guilds.array();
         for(var i=0;i<guilds.length;++i) {
             await self.checkDbInit(guilds[i]);
+            self.setNextTimeout(guilds[i]);
         }
     };
 
@@ -23,24 +24,28 @@ var birthday = function(abot) {
         self.onCreate();
     });
 
+    self.setNextTimeout = async (guild) => {
+        console.log("Setting timer for guild "+guild.id);
+        sqlite.db[guild.id].all("SELECT * FROM birthday", function(err,rows) {
+            //TODO: Implement dis
+            //var channelid = rows[0].channel;
+            //var channel = guild.channels.get(channelid);
+        });
+    };
+
     self.checkDbInit = function(guild) {
         if(sqlite.db[guild.id] == null) {
             sqlite.openDb(guild.id);
         }
+        
         return new Promise(function(resolve, reject) {
-            sqlite.db[guild.id].run("CREATE TABLE IF NOT EXISTS birthday(tag TEXT PRIMARY KEY, date INTEGER NOT NULL)", function(err) {
+            sqlite.db[guild.id].run("CREATE TABLE IF NOT EXISTS birthday(tag TEXT PRIMARY KEY, channel TEXT, date INTEGER NOT NULL)", function(err) {
                 if(err != null) {
                     reject(err);
                 }
-                sqlite.db[guild.id].run("CREATE TABLE IF NOT EXISTS birthdaychannel(channel TEXT PRIMARY KEY)", function(err) {
-                    if(err != null) {
-                        reject(err);
-                    }
-                    resolve();
-                });
+                resolve();
             });
         });
-
     };
     abot.addCommand({command: "bdayadd", argCount: 2, access: Discord.Permissions.FLAGS.SEND_MESSAGES, handler: async function(msg, args) {
         if(msg.mentions.users.array().length > 1) {
@@ -52,9 +57,15 @@ var birthday = function(abot) {
             msg.channel.send("You can only add birthdays to a guild. Try using this in a guild.");
             return;
         }
-        await self.checkDbInit(guild);
+        try {
+            await self.checkDbInit(guild);
+        } catch(e) {
+            console.log("checkInit: Err:",e);
+        }
+        
         var buser = msg.mentions.users.first();
-        var timestamp=Date.parse(args[1]);
+        var arg = args.slice(1).join(" ");
+        var timestamp=Date.parse(arg);
         if(isNaN(timestamp)) {
             msg.channel.send("Sorry I couldn't parse that date.");
             return;
@@ -64,7 +75,7 @@ var birthday = function(abot) {
         bdate.setMinutes(0);
         bdate.setSeconds(0);
         bdate.setMilliseconds(0);
-        sqlite.db[guild.id].run("INSERT OR REPLACE INTO birthday (tag, date) VALUES ($tag, $date)",{"$tag": buser.tag, "$date": bdate.getTime()}, function(err) {
+        sqlite.db[guild.id].run("INSERT OR REPLACE INTO birthday (tag, channel, date) VALUES ($tag, $channel, $date)",{"$tag": buser.tag, "$channel":msg.channel.id, "$date": bdate.getTime()}, function(err) {
             if(err) {
                 console.log("Birthday ERROR inserting into birthday table: ",err);
                 msg.channel.send("I could not save this birthday: "+err.message);
@@ -97,23 +108,15 @@ var birthday = function(abot) {
             // tag is UNIQUE, can only be 1 hit
             var row = rows[0];
             var bdate = new Date(row.date);
-            msg.channel.send("I have "+bdate+" saved as birthday for "+buser);
-        });
-
-    }});
-
-    abot.addCommand({command: "bdaychannel", argCount: 0, access: Discord.Permissions.FLAGS.SEND_MESSAGES, handler: async function(msg, args) {
-        var guild = msg.guild;
-        if(msg.guild == null) {
-            msg.channel.send("You can only fetch birthdays for a guild. Try using this in a guild.");
-            return;
-        }
-        await self.checkDbInit(guild);
-        sqlite.db[guild.id].run("DELETE * FROM birthdaychannel", function(err) {
-            sqlite.db[guild.id].run("INSERT INTO birthdaychannel (channel) VALUES ($channel)",{"$channel": msg.channel.id}, function(err) {
-                msg.channel.send("Saved "+msg.channel.name+" for birthday notifications.");
-            });
-
+            var now = new Date(Date.now());
+            var nextbdate = new Date(bdate);
+            nextbdate.setYear(now.getFullYear());
+            if(nextbdate < now) {
+                nextbdate.setFullYear(now.getFullYear()+1);
+            }
+            var diff = nextbdate - now;
+            var days = diff / 1000 / 60 / 60 / 24;
+            msg.channel.send(buser+"'s birthday is "+bdate+" and the next birthday will be in "+days+".");
         });
 
     }});
