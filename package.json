@@ -6,6 +6,8 @@
   "author": "amki",
   "dependencies": {
     "discord.js": "^11.3.2",
-    "sqlite3": "^4.0.0"
+    "feedparser": "^2.2.9",
+    "request": "^2.87.0",
+    "sqlite3": "^4.0.1"
   }
 }

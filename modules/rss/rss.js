@@ -7,18 +7,17 @@ var rss = function(abot) {
     var sqlite = abot.modules["sqlite"];
 
     self.checkFeed = async (guildDb, channel, name, url, lastposttime ) => {
-        console.log("checkFeed: Starting check.");
         var req = Request(url);
         var feedparser = new FeedParser();
 
         req.on('error', function (err) {
-            channel.send("RSS: Request for RSS feed got an error: "+err+" Start self-destruct sequence.");
+            channel.send("RSS:",name," Request for RSS feed got an error: "+err+" Start self-destruct sequence.");
         });
 
         req.on('response', function (res) {
             var stream = this;
             if (res.statusCode !== 200){
-                channel.send("RSS: RSS server returned status code "+res.statusCode+". Bastard.");
+                channel.send("RSS:",name," RSS server returned status code "+res.statusCode+". Bastard.");
                 return;
             }
             stream.pipe(feedparser);
@@ -27,7 +26,7 @@ var rss = function(abot) {
         var newtime = lastposttime;
 
         feedparser.on('error', function(err) {
-            channel.send("RSS: Feedparser encountered an error: "+err+";;; Inform administrator!");
+            console.log("RSS:",name," Feedparser encountered an error: ",err,";;; Inform administrator!");
         });
 
         feedparser.on('readable', function() {
@@ -86,7 +85,7 @@ var rss = function(abot) {
                     });
                 });
             }
-        },10000);
+        },60000);
     };
 
     self.onDestroy = async () => {
@@ -120,6 +119,51 @@ var rss = function(abot) {
                 return;
             }
             msg.channel.send("Feed has been saved!");
+        });
+    }});
+
+    abot.addCommand({command: "rssdel", argCount: 1, access: Discord.Permissions.FLAGS.SEND_MESSAGES, handler: async function(msg, args) {
+        var guild = msg.guild;
+        await self.checkDbInit(guild);
+
+        sqlite.db[guild.id].all("SELECT * FROM rss WHERE channel = $channel AND name = $name",{"$name": args[0], "$channel":msg.channel.id}, function(err,rows) {
+            if(err) {
+                msg.channel.send("Could not load feed. :( See console.");
+                console.log("SQL ERROR: ",err);
+                return;
+            }
+            if(rows.length < 1) {
+                msg.channel.send("Could not find feed "+args[0]+" did not delete anything.");
+                return;
+            }
+            sqlite.db[guild.id].run("DELETE FROM rss WHERE name = $name and channel = $channel",{"$name": args[0], "$channel":msg.channel.id}, function(err) {
+                if(err) {
+                    msg.channel.send("Could not delete feed. :( See console.");
+                    console.log("SQL ERROR: ",err);
+                    return;
+                }
+                msg.channel.send("Feed "+args[0]+" has been deleted.");
+            });
+        });
+        
+    }});
+
+    abot.addCommand({command: "rsslist", argCount: 0, access: Discord.Permissions.FLAGS.SEND_MESSAGES, handler: async function(msg, args) {
+        var guild = msg.guild;
+        await self.checkDbInit(guild);
+
+        sqlite.db[guild.id].all("SELECT * FROM rss WHERE channel = $channel",{"$channel":msg.channel.id}, function(err,rows) {
+            if(err) {
+                msg.channel.send("Could not save feed. :( See console.");
+                console.log("SQL ERROR: ",err);
+                return;
+            }
+            var ans = "";
+            for(var i=0;i<rows.length;++i) {
+                var row = rows[i];
+                ans +=" Feed "+row.name+" with url "+row.url+"\n";
+            }
+            msg.channel.send(ans);
         });
     }});
 

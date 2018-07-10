@@ -1,7 +1,12 @@
 {
-    "bdayadd": {
+    "rssadd": {
         "usage": "!rssadd name feedurl",
         "sHelp": "Adds an rss feed named name with url feedurl.",
-        "lHelp": "LONGTEXT IS MISS :3"
+        "lHelp": "Adds an rss feed named name with url feedurl."
+    },
+    "rssdel": {
+        "usage": "!rssdel name",
+        "sHelp": "Delete the rss feed named name from the database.",
+        "lHelp": "Delete the rss feed named name from the database."
     }
 }
